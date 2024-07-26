@@ -1,3 +1,7 @@
+# React Interview Questions
+*Author: Samuel Kinuthia*
+
+
 ### 1. What is React?
 
 **Answer:**
@@ -79,44 +83,45 @@ React components have several lifecycle methods that you can override to run cod
 **Answer:**
 - **Controlled Components**: Components that have their state controlled by React. The state is updated via `setState()` and the input value is driven by state.
   ```javascript
-  class MyComponent extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = { value: '' };
-    }
+  import React, { useState } from 'react';
 
-    handleChange = (event) => {
-      this.setState({ value: event.target.value });
-    }
+  function ControlledComponent() {
+    const [value, setValue] = useState('');
 
-    render() {
-      return (
-        <input type="text" value={this.state.value} onChange={this.handleChange} />
-      );
-    }
+    const handleChange = (event) => {
+      setValue(event.target.value);
+    };
+
+    return (
+      <input 
+        type="text" 
+        value={value} 
+        onChange={handleChange} 
+      />
+    );
   }
   ```
 
 - **Uncontrolled Components**: Components that store their own state internally. You access their current values using refs.
   ```javascript
-  class MyComponent extends React.Component {
-    constructor(props) {
-      super(props);
-      this.inputRef = React.createRef();
-    }
+  import React, { useRef } from 'react';
 
-    handleSubmit = () => {
-      alert(this.inputRef.current.value);
-    }
+  function UncontrolledComponent() {
+    const inputRef = useRef(null);
 
-    render() {
-      return (
-        <div>
-          <input type="text" ref={this.inputRef} />
-          <button onClick={this.handleSubmit}>Submit</button>
-        </div>
-      );
-    }
+    const handleSubmit = () => {
+      alert(inputRef.current.value);
+    };
+
+    return (
+      <div>
+        <input 
+          type="text" 
+          ref={inputRef} 
+        />
+        <button onClick={handleSubmit}>Submit</button>
+      </div>
+    );
   }
   ```
 
@@ -809,4 +814,499 @@ function MyComponent() {
     </div>
   );
 }
+```
+
+### 41. What is PropTypes and how do you use it in React?
+
+**Answer:**
+PropTypes is a mechanism to ensure that components receive props of the correct type. It helps in catching bugs by validating the types of props passed to a component.
+
+Example:
+```javascript
+import PropTypes from 'prop-types';
+
+function MyComponent({ name, age }) {
+  return (
+    <div>
+      <h1>{name}</h1>
+      <p>{age}</p>
+    </div>
+  );
+}
+
+MyComponent.propTypes = {
+  name: PropTypes.string.isRequired,
+  age: PropTypes.number.isRequired,
+};
+```
+
+### 42. How do you handle events in React?
+
+**Answer:**
+Event handling in React is similar to handling events in plain HTML but with some syntactic differences. React events are named using camelCase and you pass a function as the event handler.
+
+Example:
+```javascript
+function MyComponent() {
+  function handleClick() {
+    alert('Button clicked!');
+  }
+
+  return (
+    <button onClick={handleClick}>Click me</button>
+  );
+}
+```
+
+### 43. What is the purpose of `React.forwardRef`?
+
+**Answer:**
+`React.forwardRef` is used to pass refs to child components. This is useful for accessing the DOM node of child components or integrating with third-party libraries.
+
+Example:
+```javascript
+const MyInput = React.forwardRef((props, ref) => (
+  <input ref={ref} {...props} />
+));
+
+function ParentComponent() {
+  const inputRef = React.createRef();
+
+  const focusInput = () => {
+    inputRef.current.focus();
+  };
+
+  return (
+    <div>
+      <MyInput ref={inputRef} />
+      <button onClick={focusInput}>Focus Input</button>
+    </div>
+  );
+}
+```
+
+### 44. How do you implement code splitting in a React application?
+
+**Answer:**
+Code splitting in React can be implemented using dynamic `import()` and React.lazy for lazy loading components, and `React.Suspense` for fallback UI during loading.
+
+Example:
+```javascript
+import React, { Suspense } from 'react';
+
+const LazyComponent = React.lazy(() => import('./LazyComponent'));
+
+function App() {
+  return (
+    <div>
+      <Suspense fallback={<div>Loading...</div>}>
+        <LazyComponent />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+### 45. What is the significance of `defaultProps` in React?
+
+**Answer:**
+`defaultProps` allows you to define default values for props in a component. It ensures that the component has default values for props if they are not provided by the parent component.
+
+Example:
+```javascript
+function MyComponent({ name }) {
+  return <div>{name}</div>;
+}
+
+MyComponent.defaultProps = {
+  name: 'Default Name',
+};
+```
+
+### 46. How do you pass data between sibling components in React?
+
+**Answer:**
+Data between sibling components can be passed through their common parent component. The parent holds the state and passes data and callbacks as props to the sibling components.
+
+Example:
+```javascript
+function ParentComponent() {
+  const [data, setData] = useState('');
+
+  return (
+    <div>
+      <SiblingOne setData={setData} />
+      <SiblingTwo data={data} />
+    </div>
+  );
+}
+
+function SiblingOne({ setData }) {
+  return (
+    <input
+      type="text"
+      onChange={(e) => setData(e.target.value)}
+    />
+  );
+}
+
+function SiblingTwo({ data }) {
+  return <div>{data}</div>;
+}
+```
+
+### 47. What are synthetic events in React?
+
+**Answer:**
+Synthetic events in React are cross-browser wrappers around native events. They provide consistent behavior across different browsers and have the same interface as native events.
+
+Example:
+```javascript
+function MyComponent() {
+  function handleClick(event) {
+    console.log(event.nativeEvent); // Native browser event
+    console.log(event); // Synthetic event
+  }
+
+  return (
+    <button onClick={handleClick}>Click me</button>
+  );
+}
+```
+
+### 48. How do you handle errors in React components?
+
+**Answer:**
+Errors in React components can be handled using Error Boundaries. These are components that catch JavaScript errors anywhere in their child component tree, log those errors, and display a fallback UI.
+
+Example:
+```javascript
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    // Log error information
+    console.error(error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children;
+  }
+}
+
+function MyComponent() {
+  // Component code that might throw an error
+}
+```
+
+### 49. How do you memoize a function in React?
+
+**Answer:**
+In React, functions can be memoized using the `useCallback` hook, which returns a memoized version of the callback that only changes if one of the dependencies has changed.
+
+Example:
+```javascript
+function MyComponent() {
+  const [count, setCount] = useState(0);
+
+  const memoizedCallback = useCallback(() => {
+    console.log('Callback called with count:', count);
+  }, [count]);
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>Increment</button>
+      <button onClick={memoizedCallback}>Call Memoized Callback</button>
+    </div>
+  );
+}
+```
+
+### 50. What is the purpose of the `useImperativeHandle` hook?
+
+**Answer:**
+The `useImperativeHandle` hook customizes the instance value that is exposed when using `ref` in parent components. It allows you to control what is returned when a ref is accessed.
+
+Example:
+```javascript
+const FancyInput = React.forwardRef((props, ref) => {
+  const inputRef = useRef();
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRef.current.focus();
+    },
+  }));
+
+  return <input ref={inputRef} />;
+});
+
+function ParentComponent() {
+  const ref = useRef();
+
+  return (
+    <div>
+      <FancyInput ref={ref} />
+      <button onClick={() => ref.current.focus()}>Focus Input</button>
+    </div>
+  );
+}
+```
+
+### 51. How do you handle form submission in React?
+
+**Answer:**
+Form submission in React is handled by defining an `onSubmit` event handler for the form element, which will be called when the form is submitted.
+
+Example:
+```javascript
+import React, { useState } from 'react';
+
+function MyForm() {
+  const [value, setValue] = useState('');
+
+  const handleChange = (event) => {
+    setValue(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    alert('Form submitted with value: ' + value);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input 
+        type="text" 
+        value={value} 
+        onChange={handleChange} 
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+### 52. How do you handle state with multiple inputs in a form?
+
+**Answer:**
+You can handle state with multiple inputs by storing the form data in a single state object and updating the state for each input using a dynamic key.
+
+Example:
+```javascript
+import React, { useState } from 'react';
+
+function MyForm() {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: ''
+  });
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    alert(`First Name: ${formData.firstName}, Last Name: ${formData.lastName}`);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input
+        type="text"
+        name="firstName"
+        value={formData.firstName}
+        onChange={handleChange}
+      />
+      <input
+        type="text"
+        name="lastName"
+        value={formData.lastName}
+        onChange={handleChange}
+      />
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+### 53. How do you optimize a React application for performance?
+
+**Answer:**
+Several techniques can be used to optimize a React application for performance, including:
+- **Using React.memo** to memoize functional components.
+- **Using `useMemo` and `useCallback`** to memoize expensive calculations and functions.
+- **Code splitting** using `React.lazy` and `Suspense`.
+- **Avoiding unnecessary re-renders** by using `PureComponent` or `shouldComponentUpdate` in class components.
+- **Windowing/virtualization** for large lists using libraries like `react-window`.
+
+### 55. What is the purpose of `React.StrictMode`?
+
+**Answer:**
+`React.StrictMode` is a wrapper component that helps highlight potential problems in an application. It does not render any visible UI but activates additional checks and warnings for its descendants. It helps with identifying unsafe lifecycles, legacy API usage, and more.
+
+Example:
+```javascript
+import React from 'react';
+
+function App() {
+  return (
+    <React.StrictMode>
+      <MyComponent />
+    </React.StrictMode>
+  );
+}
+```
+
+### 54. How do you fetch data from an API in React?
+
+**Answer:**
+Data can be fetched from an API in React using the `useEffect` hook along with the `fetch` API.
+
+Example:
+```javascript
+import React, { useState, useEffect } from 'react';
+
+function MyComponent() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    fetch('https://api.example.com/data')
+      .then(response => response.json())
+      .then(data => setData(data));
+  }, []);
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      <h1>Data from API:</h1>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+### 55. How do you implement routing in a React application?
+
+**Answer:**
+Routing in a React application can be implemented using the `react-router-dom` library.
+
+Example:
+```javascript
+import React from 'react';
+import { BrowserRouter as Router, Route, Switch, Link } from 'react-router-dom';
+
+function Home() {
+  return <h1>Home</h1>;
+}
+
+function About() {
+  return <h1>About</h1>;
+}
+
+function App() {
+  return (
+    <Router>
+      <nav>
+        <Link to="/">Home</Link>
+        <Link to="/about">About</Link>
+      </nav>
+      <Switch>
+        <Route exact path="/" component={Home} />
+        <Route path="/about" component={About} />
+      </Switch>
+    </Router>
+  );
+}
+
+export default App;
+```
+
+### 56. How do you handle side effects in React?
+
+**Answer:**
+Side effects in React can be handled using the `useEffect` hook. This hook allows you to perform side effects in function components.
+
+Example:
+```javascript
+import React, { useEffect, useState } from 'react';
+
+function MyComponent() {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    // Fetch data or perform other side effects here
+    fetch('https://api.example.com/data')
+      .then(response => response.json())
+      .then(data => setData(data));
+  }, []); // Empty array means this effect runs once on mount
+
+  return (
+    <div>
+      {data ? <div>{data}</div> : <div>Loading...</div>}
+    </div>
+  );
+}
+```
+
+### 57. How do you manage global state in a React application?
+
+**Answer:**
+Global state in a React application can be managed using context and the `useContext` hook.
+
+Example:
+```javascript
+import React, { createContext, useContext, useState } from 'react';
+
+const MyContext = createContext();
+
+function MyProvider({ children }) {
+  const [state, setState] = useState('some value');
+
+  return (
+    <MyContext.Provider value={{ state, setState }}>
+      {children}
+    </MyContext.Provider>
+  );
+}
+
+function MyComponent() {
+  const { state, setState } = useContext(MyContext);
+
+  return (
+    <div>
+      <p>Global state: {state}</p>
+      <button onClick={() => setState('new value')}>Change State</button>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <MyProvider>
+      <MyComponent />
+    </MyProvider>
+  );
+}
+
+export default App;
 ```
